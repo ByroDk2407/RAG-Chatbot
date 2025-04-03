@@ -1,0 +1,420 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 300px;
+    background-color: #fff;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.chat-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.input-container {
+    padding: 20px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+}
+
+#questionInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 80%;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+}
+
+.assistant-message {
+    background-color: #e9ecef;
+    color: #212529;
+    white-space: pre-wrap;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    padding: 15px;
+}
+
+.assistant-message strong {
+    color: #0056b3;
+    font-weight: 600;
+}
+
+.assistant-message em {
+    color: #2c5282;
+}
+
+.assistant-message code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #e83e8c;
+}
+
+.assistant-message a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.assistant-message a:hover {
+    text-decoration: underline;
+}
+
+.upload-section {
+    margin-top: 20px;
+}
+
+#uploadStatus {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Add styles for source citations */
+.source-citation {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Add these to your existing CSS */
+
+.typing-indicator {
+    display: inline-block;
+    padding: 5px 10px;
+    animation: pulse 1s infinite;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+@keyframes pulse {
+    0% { opacity: .4; }
+    50% { opacity: 1; }
+    100% { opacity: .4; }
+}
+
+/* Disable input while processing */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.database-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.database-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.files-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.file-list {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.file-item {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-meta {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #343a40;
+}
+
+.create-database-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.create-database-form input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.status-message {
+    margin-top: 8px;
+    padding: 5px;
+    font-size: 0.9em;
+    border-radius: 4px;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.create-document-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.create-document-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.create-document-section input,
+.create-document-section textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.create-document-section textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-size: 0.9em;
+}
+
+.create-document-section button {
+    align-self: flex-end;
+}
+
+.database-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.delete-btn {
+    padding: 4px 8px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.delete-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-content {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.pdf-preview {
+    width: 0;
+    transition: all 0.3s ease;
+    background: #fff;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.pdf-preview.active {
+    width: 40%;
+    min-width: 400px;
+}
+
+.pdf-header {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.pdf-header h3 {
+    margin: 0;
+}
+
+#closePdfBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+#closePdfBtn:hover {
+    color: #000;
+}
+
+#pdfCanvas {
+    max-width: 100%;
+    height: auto;
+    transition: opacity 0.3s ease;
+    margin: 20px auto;
+    display: block;
+}
+
+.pdf-controls {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #ddd;
+    background: #f8f9fa;
+}
+
+.pdf-controls button {
+    padding: 8px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pdf-controls button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.source-reference {
+    display: inline-block;
+    margin-top: 10px;
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.source-reference:hover {
+    color: #0052a3;
+} 

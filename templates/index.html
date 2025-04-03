@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Troubleshooting Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --sidebar-color: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --hover-color: #f1f5f9;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: var(--sidebar-color);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            overflow-y: auto;
+            width: 320px;
+            flex-shrink: 0;
+        }
+
+        .sidebar h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-color);
+            padding: 0 4px;
+        }
+
+        .database-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .database-section h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .database-header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .database-select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background-color: white;
+            height: 36px;
+            box-sizing: border-box;
+        }
+
+        .create-database-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        #newDatabaseInput {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 8px;
+            height: 36px;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-top: 10px;
+        }
+
+        .btn-danger:hover {
+            background-color: #fecaca;
+        }
+
+        .files-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .upload-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        #uploadForm {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #fileInput {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .create-document-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        #createDocumentForm {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #documentName, #documentContent {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        #documentContent {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .status-message {
+            font-size: 0.875rem;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+
+        .status-message.success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-message.error {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: white;
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background-color: var(--background-color);
+        }
+
+        .message {
+            margin: 8px 0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            line-height: 1.5;
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: white;
+            margin-left: auto;
+            width: fit-content;
+            align-self: flex-end;
+        }
+
+        .assistant-message {
+            background-color: white;
+            margin-right: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-container {
+            padding: 24px;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+
+        #questionInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        #questionInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        #sendButton {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #sendButton:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .pdf-preview {
+            display: none;
+            position: fixed;
+            right: 24px;
+            top: 24px;
+            width: 40%;
+            height: calc(100vh - 48px);
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+        }
+
+        .pdf-preview.active {
+            display: block;
+        }
+
+        .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pdf-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        #closePdfBtn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        #closePdfBtn:hover {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pdf-controls button {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pdf-controls button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .pdf-controls button:disabled {
+            background-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        #pageInfo {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            background-color: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        #pdf-canvas {
+            width: 100%;
+            height: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+
+        .source-reference {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 8px;
+            display: inline-block;
+            font-size: 0.875rem;
+            padding: 4px 8px;
+            background-color: rgba(37, 99, 235, 0.1);
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .source-reference:hover {
+            background-color: rgba(37, 99, 235, 0.2);
+        }
+
+        /* File list styling */
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 10vh auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Disable button styles */
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .upload-drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .upload-drop-zone:hover, .upload-drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .upload-text .primary-text {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .upload-text .secondary-text {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .upload-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 4px;
+        }
+
+        .upload-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .selected-files {
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .selected-file {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-color: var(--background-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .selected-file-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-file-icon {
+            color: #64748b;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .remove-file:hover {
+            background-color: #fee2e2;
+        }
+
+        .upload-submit {
+            width: 100%;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>CSIRO Troubleshooting Assistant</h1>
+            
+            <!-- Database Selector -->
+            <div class="database-section">
+                <h2>Select Database</h2>
+                <div class="database-header">
+                    <select id="databaseSelector" class="database-select">
+                        <option value="General">General</option>
+                    </select>
+                    <button id="deleteDatabaseBtn" class="btn btn-danger" title="Delete Database">🗑️</button>
+                </div>
+            </div>
+
+            <!-- Create Database -->
+            <div class="database-section">
+                <h2>Create Database</h2>
+                <div class="create-database-form">
+                    <input type="text" id="newDatabaseInput" placeholder="Enter Name">
+                    <button id="createDatabaseBtn" class="btn btn-primary">Create</button>
+                </div>
+                <div id="createDatabaseStatus" class="status-message"></div>
+            </div>
+
+            <!-- File List -->
+            <div class="files-section">
+                <h2>Uploaded Files</h2>
+                <div id="fileList" class="file-list">
+                    <!-- Files will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>Upload Documents</h2>
+                <form id="uploadForm">
+                    <div class="upload-drop-zone" id="uploadDropZone">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">
+                            <span class="primary-text">Drag & drop files here</span>
+                            <span class="secondary-text">or</span>
+                            <label for="fileInput" class="upload-button">Browse Files</label>
+                        </div>
+                        <input type="file" id="fileInput" accept=".pdf,.txt" multiple hidden>
+                    </div>
+                    <div id="selectedFiles" class="selected-files"></div>
+                    <button type="submit" class="btn btn-primary upload-submit">Upload Documents</button>
+                </form>
+                <div id="uploadStatus" class="status-message"></div>
+            </div>
+
+            <!-- Create Document -->
+            <div class="database-section">
+                <button id="createDocumentBtn" class="btn btn-primary" style="width: 100%;">
+                    Create New Document
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="chat-container" id="chatContainer">
+                    <!-- Chat messages will be inserted here -->
+                </div>
+                
+                <div class="pdf-preview" id="pdfPreview">
+                    <div class="pdf-header">
+                        <h3>Reference Preview</h3>
+                        <button id="closePdfBtn" aria-label="Close preview">×</button>
+                    </div>
+                    <canvas id="pdf-canvas"></canvas>
+                    <div class="pdf-controls">
+                        <button id="prevPage" class="btn-primary">Previous</button>
+                        <span id="pageInfo">Page <span id="pageNum">1</span> of <span id="pageCount">1</span></span>
+                        <button id="nextPage" class="btn-primary">Next</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="questionInput" placeholder="Ask a question...">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createDocumentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Document</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="createDocumentForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="documentName">Document Name</label>
+                        <input type="text" id="documentName" placeholder="Enter document name (e.g., manual.txt)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentContent">Document Content</label>
+                        <textarea id="documentContent" placeholder="Enter document content..." rows="8" required></textarea>
+                    </div>
+                    <div id="modalStatus" class="status-message"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelCreateDocument">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create & Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
